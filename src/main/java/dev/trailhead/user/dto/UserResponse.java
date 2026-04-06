@@ -11,6 +11,7 @@ public record UserResponse(
         Long id,
         String name,
         String email,
+        boolean verified,
         Set<String> roles,
         Instant createdAt
 ) {

@@ -2,6 +2,9 @@ package dev.trailhead.auth;
 
 import dev.trailhead.auth.dto.*;
 import dev.trailhead.config.RefreshTokenProperties;
+import dev.trailhead.user.User;
+import dev.trailhead.user.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -9,6 +12,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,10 +29,17 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final EmailVerificationService emailVerificationService;
+    private final UserRepository userRepository;
     private final RefreshTokenProperties refreshTokenProperties;
 
-    public AuthController(AuthService authService, RefreshTokenProperties refreshTokenProperties) {
+    public AuthController(AuthService authService,
+                          EmailVerificationService emailVerificationService,
+                          UserRepository userRepository,
+                          RefreshTokenProperties refreshTokenProperties) {
         this.authService = authService;
+        this.emailVerificationService = emailVerificationService;
+        this.userRepository = userRepository;
         this.refreshTokenProperties = refreshTokenProperties;
     }
 
@@ -52,6 +64,26 @@ public class AuthController {
         String refreshToken = extractRefreshToken(request, httpRequest);
         AuthResponse authResponse = authService.refresh(refreshToken);
         return buildAuthResponse(authResponse, httpResponse);
+    }
+
+    @PostMapping("/verify")
+    public ResponseEntity<MessageResponse> verify(@Valid @RequestBody VerifyRequest request) {
+        emailVerificationService.verify(request.token());
+        return ResponseEntity.ok(new MessageResponse("Email verified successfully"));
+    }
+
+    @PostMapping("/resend-verification")
+    public ResponseEntity<MessageResponse> resendVerification(@AuthenticationPrincipal Jwt jwt) {
+        Long userId = Long.valueOf(jwt.getSubject());
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if (user.isVerified()) {
+            return ResponseEntity.ok(new MessageResponse("Email is already verified"));
+        }
+
+        emailVerificationService.sendVerificationEmail(user);
+        return ResponseEntity.ok(new MessageResponse("Verification email sent"));
     }
 
     @PostMapping("/logout")

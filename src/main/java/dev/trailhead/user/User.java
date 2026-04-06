@@ -38,6 +38,9 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>(); // Set prevents duplicate roles.
 
+    @Column(nullable = false)
+    private boolean verified;
+
     @Column(name = "created_at", nullable = false, updatable = false) // Exclude when updating.
     private Instant createdAt;
 

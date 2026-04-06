@@ -28,19 +28,22 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtTokenService jwtTokenService;
     private final RefreshTokenService refreshTokenService;
+    private final EmailVerificationService emailVerificationService;
 
     public AuthService(UserRepository userRepository,
                        RoleRepository roleRepository,
                        PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager,
                        JwtTokenService jwtTokenService,
-                       RefreshTokenService refreshTokenService) {
+                       RefreshTokenService refreshTokenService,
+                       EmailVerificationService emailVerificationService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtTokenService = jwtTokenService;
         this.refreshTokenService = refreshTokenService;
+        this.emailVerificationService = emailVerificationService;
     }
 
     // Rollback the entire method if a step fail, like token creation for example.
@@ -68,6 +71,9 @@ public class AuthService {
         // Generate both tokens and return them.
         String accessToken = jwtTokenService.generateAccessToken(user);
         RefreshToken refreshToken = refreshTokenService.createRefreshToken(user);
+
+        // Send verification email to the new user.
+        emailVerificationService.sendVerificationEmail(user);
 
         return new AuthResponse(accessToken, refreshToken.getToken(), jwtTokenService.getExpirationMs());
     }
