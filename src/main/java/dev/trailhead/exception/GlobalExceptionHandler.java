@@ -1,5 +1,6 @@
 package dev.trailhead.exception;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +44,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleTokenRefresh(TokenRefreshException ex,
                                                             HttpServletRequest request) {
         return buildResponse(HttpStatus.UNAUTHORIZED, "Unauthorized", ex.getMessage(), request);
+    }
+
+    // Thrown when a user or role is not found by ID or name.
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(EntityNotFoundException ex,
+                                                        HttpServletRequest request) {
+        return buildResponse(HttpStatus.NOT_FOUND, "Not Found", ex.getMessage(), request);
     }
 
     // Thrown when the registering email is already taken.

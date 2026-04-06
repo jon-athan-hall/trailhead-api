@@ -1,11 +1,11 @@
 package dev.trailhead.user;
 
+import dev.trailhead.user.dto.AddRoleRequest;
 import dev.trailhead.user.dto.UserResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,5 +23,12 @@ public class UserController {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @PutMapping("/{id}/roles")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<UserResponse> addRole(@PathVariable Long id,
+                                                @Valid @RequestBody AddRoleRequest request) {
+        return ResponseEntity.ok(userService.addRole(id, request.roleId()));
     }
 }
