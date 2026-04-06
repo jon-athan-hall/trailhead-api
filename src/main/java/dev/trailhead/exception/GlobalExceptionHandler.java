@@ -3,7 +3,9 @@ package dev.trailhead.exception;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -48,6 +50,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleEmailConflict(EmailAlreadyExistsException ex,
                                                              HttpServletRequest request) {
         return buildResponse(HttpStatus.CONFLICT, "Conflict", ex.getMessage(), request);
+    }
+
+    // Thrown by Spring Security when access is denied or authentication fails. Re-thrown to let Security's own handlers respond.
+    @ExceptionHandler({AccessDeniedException.class, AuthenticationException.class})
+    public void handleSecurityExceptions(Exception ex) throws Exception {
+        throw ex;
     }
 
     // Thrown for any unhandled exception. Notice that it become generic and gives no internal hints in response.
