@@ -40,4 +40,17 @@ public class UserService {
 
         return userMapper.toUserResponse(userRepository.save(user));
     }
+
+    @Transactional
+    public UserResponse removeRole(Long userId, Long roleId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+
+        Role role = roleRepository.findById(roleId)
+                .orElseThrow(() -> new EntityNotFoundException("Role not found with id: " + roleId));
+
+        user.getRoles().remove(role);
+
+        return userMapper.toUserResponse(userRepository.save(user));
+    }
 }

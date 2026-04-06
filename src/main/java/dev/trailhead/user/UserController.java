@@ -31,4 +31,11 @@ public class UserController {
                                                 @Valid @RequestBody AddRoleRequest request) {
         return ResponseEntity.ok(userService.addRole(id, request.roleId()));
     }
+
+    @DeleteMapping("/{id}/roles/{roleId}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<UserResponse> removeRole(@PathVariable Long id,
+                                                   @PathVariable Long roleId) {
+        return ResponseEntity.ok(userService.removeRole(id, roleId));
+    }
 }
