@@ -24,6 +24,12 @@ public class UserService {
         this.userMapper = userMapper;
     }
 
+    public UserResponse getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        return userMapper.toUserResponse(user);
+    }
+
     public List<UserResponse> getAllUsers() {
         return userMapper.toUserResponseList(userRepository.findAll());
     }

@@ -19,6 +19,12 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or #id.toString() == authentication.name")
+    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
+    }
+
     @GetMapping
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
