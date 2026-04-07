@@ -1,0 +1,47 @@
+services:
+  # MySQL only runs when the "prod" profile is active. Locally, the app connects to
+  # an existing Docker Desktop MySQL container, so this service stays inactive.
+  mysql:
+    image: mysql:latest
+    container_name: trailhead-mysql
+    restart: unless-stopped
+    profiles: [prod]
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME:-trailhead}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - trailhead-net
+
+  app:
+    build: .
+    container_name: trailhead-api
+    restart: unless-stopped
+    depends_on:
+      - mysql
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      DB_HOST: ${DB_HOST:-mysql}
+      DB_PORT: ${DB_PORT:-3306}
+      DB_NAME: ${DB_NAME:-trailhead}
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD}
+      ADMIN_SEED_EMAIL: ${ADMIN_SEED_EMAIL}
+      ADMIN_SEED_PASSWORD: ${ADMIN_SEED_PASSWORD}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS}
+      MAIL_HOST: ${MAIL_HOST}
+      MAIL_PORT: ${MAIL_PORT}
+      MAIL_USERNAME: ${MAIL_USERNAME}
+      MAIL_PASSWORD: ${MAIL_PASSWORD}
+    networks:
+      - trailhead-net
+
+volumes:
+  mysql-data:
+
+networks:
+  trailhead-net:
