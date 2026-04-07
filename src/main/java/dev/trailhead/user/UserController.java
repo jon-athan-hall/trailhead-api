@@ -64,6 +64,19 @@ public class UserController {
         return ResponseEntity.ok(userService.addRole(id, request.roleId()));
     }
 
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or #id.toString() == authentication.name")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/restore")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    public ResponseEntity<UserResponse> restoreUser(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.restoreUser(id));
+    }
+
     @DeleteMapping("/{id}/roles/{roleId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<UserResponse> removeRole(@PathVariable Long id,

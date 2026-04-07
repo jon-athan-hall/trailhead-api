@@ -4,6 +4,7 @@ import dev.trailhead.auth.EmailVerificationService;
 import dev.trailhead.exception.EmailAlreadyExistsException;
 import dev.trailhead.role.Role;
 import dev.trailhead.role.RoleRepository;
+import dev.trailhead.token.RefreshTokenRepository;
 import dev.trailhead.user.dto.ChangePasswordRequest;
 import dev.trailhead.user.dto.UpdateUserRequest;
 import dev.trailhead.user.dto.UserResponse;
@@ -23,17 +24,20 @@ public class UserService {
     private final UserMapper userMapper;
     private final EmailVerificationService emailVerificationService;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
     public UserService(UserRepository userRepository,
                        RoleRepository roleRepository,
                        UserMapper userMapper,
                        EmailVerificationService emailVerificationService,
-                       PasswordEncoder passwordEncoder) {
+                       PasswordEncoder passwordEncoder,
+                       RefreshTokenRepository refreshTokenRepository) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userMapper = userMapper;
         this.emailVerificationService = emailVerificationService;
         this.passwordEncoder = passwordEncoder;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     public UserResponse getUserById(Long userId) {
@@ -102,6 +106,28 @@ public class UserService {
         user.getRoles().add(role);
 
         return userMapper.toUserResponse(userRepository.save(user));
+    }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+
+        // Revoke all refresh tokens so the user can't keep using the API after deletion.
+        refreshTokenRepository.revokeAllByUserId(userId);
+
+        // Hibernate's @SoftDelete intercepts this and runs UPDATE users SET deleted = TRUE WHERE id = ?
+        userRepository.delete(user);
+    }
+
+    @Transactional
+    public UserResponse restoreUser(Long userId) {
+        int rowsAffected = userRepository.restoreById(userId);
+        if (rowsAffected == 0) {
+            throw new EntityNotFoundException("No deleted user found with id: " + userId);
+        }
+        return userMapper.toUserResponse(userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId)));
     }
 
     @Transactional

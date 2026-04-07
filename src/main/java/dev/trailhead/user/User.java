@@ -1,21 +1,23 @@
 package dev.trailhead.user;
 
+import dev.trailhead.common.BaseEntity;
 import dev.trailhead.role.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SoftDelete;
 
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
+@SoftDelete // Hibernate manages a "deleted" boolean column and filters all queries to exclude deleted rows.
 @Getter
 @Setter
 @NoArgsConstructor
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,23 +42,4 @@ public class User {
 
     @Column(nullable = false)
     private boolean verified;
-
-    @Column(name = "created_at", nullable = false, updatable = false) // Exclude when updating.
-    private Instant createdAt;
-
-    @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
-
-    // Runs right before the first insert.
-    @PrePersist
-    protected void onCreate() {
-        createdAt = Instant.now();
-        updatedAt = Instant.now();
-    }
-
-    // Runs right before any update.
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = Instant.now();
-    }
 }
