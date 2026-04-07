@@ -8,12 +8,12 @@ import dev.trailhead.user.dto.ChangePasswordRequest;
 import dev.trailhead.user.dto.UpdateUserRequest;
 import dev.trailhead.user.dto.UserResponse;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class UserService {
@@ -70,8 +70,8 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
-    public List<UserResponse> getAllUsers() {
-        return userMapper.toUserResponseList(userRepository.findAll());
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(userMapper::toUserResponse);
     }
 
     @Transactional
