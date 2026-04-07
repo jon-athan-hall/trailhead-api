@@ -1,11 +1,14 @@
 package dev.trailhead.user;
 
+import dev.trailhead.auth.dto.MessageResponse;
 import dev.trailhead.user.dto.AddRoleRequest;
+import dev.trailhead.user.dto.ChangePasswordRequest;
 import dev.trailhead.user.dto.UpdateUserRequest;
 import dev.trailhead.user.dto.UserResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -37,6 +40,18 @@ public class UserController {
     public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
                                                    @Valid @RequestBody UpdateUserRequest request) {
         return ResponseEntity.ok(userService.updateUser(id, request));
+    }
+
+    @PutMapping("/{id}/password")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or #id.toString() == authentication.name")
+    public ResponseEntity<MessageResponse> changePassword(@PathVariable Long id,
+                                                          @Valid @RequestBody ChangePasswordRequest request,
+                                                          Authentication authentication) {
+        // Self-service password changes must verify the current password.
+        // Admins changing another user's password do not.
+        boolean isSelf = id.toString().equals(authentication.getName());
+        userService.changePassword(id, request, isSelf);
+        return ResponseEntity.ok(new MessageResponse("Password updated successfully"));
     }
 
     @PutMapping("/{id}/roles")
