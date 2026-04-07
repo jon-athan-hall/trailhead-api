@@ -30,15 +30,18 @@ public class AuthController {
 
     private final AuthService authService;
     private final EmailVerificationService emailVerificationService;
+    private final PasswordResetService passwordResetService;
     private final UserRepository userRepository;
     private final RefreshTokenProperties refreshTokenProperties;
 
     public AuthController(AuthService authService,
                           EmailVerificationService emailVerificationService,
+                          PasswordResetService passwordResetService,
                           UserRepository userRepository,
                           RefreshTokenProperties refreshTokenProperties) {
         this.authService = authService;
         this.emailVerificationService = emailVerificationService;
+        this.passwordResetService = passwordResetService;
         this.userRepository = userRepository;
         this.refreshTokenProperties = refreshTokenProperties;
     }
@@ -64,6 +67,18 @@ public class AuthController {
         String refreshToken = extractRefreshToken(request, httpRequest);
         AuthResponse authResponse = authService.refresh(refreshToken);
         return buildAuthResponse(authResponse, httpResponse);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<MessageResponse> forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        passwordResetService.requestReset(request.email());
+        return ResponseEntity.ok(new MessageResponse("Password reset email sent"));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<MessageResponse> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        passwordResetService.resetPassword(request.token(), request.newPassword());
+        return ResponseEntity.ok(new MessageResponse("Password reset successfully"));
     }
 
     @PostMapping("/verify")
