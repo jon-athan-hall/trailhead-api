@@ -64,6 +64,20 @@ public class GlobalExceptionHandler {
         return buildResponse(HttpStatus.CONFLICT, "Conflict", ex.getMessage(), request);
     }
 
+    // Thrown when creating or renaming a role to a name that already exists.
+    @ExceptionHandler(RoleNameAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleRoleNameConflict(RoleNameAlreadyExistsException ex,
+                                                                HttpServletRequest request) {
+        return buildResponse(HttpStatus.CONFLICT, "Conflict", ex.getMessage(), request);
+    }
+
+    // Thrown when attempting to delete a role that is still assigned to users.
+    @ExceptionHandler(RoleInUseException.class)
+    public ResponseEntity<ErrorResponse> handleRoleInUse(RoleInUseException ex,
+                                                         HttpServletRequest request) {
+        return buildResponse(HttpStatus.CONFLICT, "Conflict", ex.getMessage(), request);
+    }
+
     // Thrown by Spring Security when access is denied or authentication fails. Re-thrown to let Security's own handlers respond.
     @ExceptionHandler({AccessDeniedException.class, AuthenticationException.class})
     public void handleSecurityExceptions(Exception ex) throws Exception {
