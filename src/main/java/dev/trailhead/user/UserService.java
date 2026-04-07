@@ -1,7 +1,10 @@
 package dev.trailhead.user;
 
+import dev.trailhead.auth.EmailVerificationService;
+import dev.trailhead.exception.EmailAlreadyExistsException;
 import dev.trailhead.role.Role;
 import dev.trailhead.role.RoleRepository;
+import dev.trailhead.user.dto.UpdateUserRequest;
 import dev.trailhead.user.dto.UserResponse;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -15,18 +18,49 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final UserMapper userMapper;
+    private final EmailVerificationService emailVerificationService;
 
     public UserService(UserRepository userRepository,
                        RoleRepository roleRepository,
-                       UserMapper userMapper) {
+                       UserMapper userMapper,
+                       EmailVerificationService emailVerificationService) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.userMapper = userMapper;
+        this.emailVerificationService = emailVerificationService;
     }
 
     public UserResponse getUserById(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+        return userMapper.toUserResponse(user);
+    }
+
+    @Transactional
+    public UserResponse updateUser(Long userId, UpdateUserRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
+
+        if (request.name() != null) {
+            user.setName(request.name());
+        }
+
+        // If the email is changing, ensure it's not taken, reset verified status, and send a new verification email.
+        boolean emailChanged = request.email() != null && !user.getEmail().equalsIgnoreCase(request.email());
+        if (emailChanged) {
+            if (userRepository.existsByEmail(request.email())) {
+                throw new EmailAlreadyExistsException(request.email());
+            }
+            user.setEmail(request.email());
+            user.setVerified(false);
+        }
+
+        user = userRepository.save(user);
+
+        if (emailChanged) {
+            emailVerificationService.sendVerificationEmail(user);
+        }
+
         return userMapper.toUserResponse(user);
     }
 

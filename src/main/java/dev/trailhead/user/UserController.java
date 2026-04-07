@@ -1,6 +1,7 @@
 package dev.trailhead.user;
 
 import dev.trailhead.user.dto.AddRoleRequest;
+import dev.trailhead.user.dto.UpdateUserRequest;
 import dev.trailhead.user.dto.UserResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +30,13 @@ public class UserController {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<UserResponse>> getAllUsers() {
         return ResponseEntity.ok(userService.getAllUsers());
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN') or #id.toString() == authentication.name")
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
+                                                   @Valid @RequestBody UpdateUserRequest request) {
+        return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
     @PutMapping("/{id}/roles")
