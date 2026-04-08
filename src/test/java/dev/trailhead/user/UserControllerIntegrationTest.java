@@ -84,13 +84,13 @@ class UserControllerIntegrationTest {
 
     // ── Auth helpers ────────────────────────────────────────────────────
 
-    private org.springframework.test.web.servlet.request.RequestPostProcessor asUser(Long id) {
-        return jwt().jwt(j -> j.subject(id.toString()).claim("roles", List.of("ROLE_USER")))
+    private org.springframework.test.web.servlet.request.RequestPostProcessor asUser(String id) {
+        return jwt().jwt(j -> j.subject(id).claim("roles", List.of("ROLE_USER")))
                 .authorities(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
-    private org.springframework.test.web.servlet.request.RequestPostProcessor asAdmin(Long id) {
-        return jwt().jwt(j -> j.subject(id.toString())
+    private org.springframework.test.web.servlet.request.RequestPostProcessor asAdmin(String id) {
+        return jwt().jwt(j -> j.subject(id)
                         .claim("roles", List.of("ROLE_USER", "ROLE_ADMIN")))
                 .authorities(new SimpleGrantedAuthority("ROLE_USER"),
                         new SimpleGrantedAuthority("ROLE_ADMIN"));
@@ -127,7 +127,7 @@ class UserControllerIntegrationTest {
 
     @Test
     void getUserById_notFound_shouldReturn404() throws Exception {
-        mockMvc.perform(get("/api/users/{id}", 9999L).with(asAdmin(user.getId())))
+        mockMvc.perform(get("/api/users/{id}", "00000000-0000-0000-0000-000000000000").with(asAdmin(user.getId())))
                 .andExpect(status().isNotFound());
     }
 

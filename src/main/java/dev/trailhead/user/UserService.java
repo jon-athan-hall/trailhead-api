@@ -40,14 +40,14 @@ public class UserService {
         this.refreshTokenRepository = refreshTokenRepository;
     }
 
-    public UserResponse getUserById(Long userId) {
+    public UserResponse getUserById(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
         return userMapper.toUserResponse(user);
     }
 
     @Transactional
-    public UserResponse updateUser(Long userId, UpdateUserRequest request) {
+    public UserResponse updateUser(String userId, UpdateUserRequest request) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
@@ -79,7 +79,7 @@ public class UserService {
     }
 
     @Transactional
-    public void changePassword(Long userId, ChangePasswordRequest request, boolean requireCurrentPassword) {
+    public void changePassword(String userId, ChangePasswordRequest request, boolean requireCurrentPassword) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
@@ -96,7 +96,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse addRole(Long userId, Long roleId) {
+    public UserResponse addRole(String userId, String roleId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
@@ -109,7 +109,7 @@ public class UserService {
     }
 
     @Transactional
-    public void deleteUser(Long userId) {
+    public void deleteUser(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
@@ -121,7 +121,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse restoreUser(Long userId) {
+    public UserResponse restoreUser(String userId) {
         int rowsAffected = userRepository.restoreById(userId);
         if (rowsAffected == 0) {
             throw new EntityNotFoundException("No deleted user found with id: " + userId);
@@ -131,7 +131,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse removeRole(Long userId, Long roleId) {
+    public UserResponse removeRole(String userId, String roleId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 

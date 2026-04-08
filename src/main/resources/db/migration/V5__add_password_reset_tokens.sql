@@ -1,7 +1,7 @@
 CREATE TABLE password_reset_tokens (
     id          BIGINT       NOT NULL AUTO_INCREMENT,
     token       VARCHAR(255) NOT NULL,
-    user_id     BIGINT       NOT NULL,
+    user_id     VARCHAR(36)     NOT NULL,
     expires_at  DATETIME(6)  NOT NULL,
     used_at     DATETIME(6)  NULL,
     created_at  DATETIME(6)  NOT NULL,

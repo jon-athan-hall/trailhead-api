@@ -30,7 +30,7 @@ public class RoleService {
         return roleMapper.toRoleResponseList(roleRepository.findAll());
     }
 
-    public RoleResponse getRoleById(Long id) {
+    public RoleResponse getRoleById(String id) {
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Role not found with id: " + id));
         return roleMapper.toRoleResponse(role);
@@ -46,7 +46,7 @@ public class RoleService {
     }
 
     @Transactional
-    public RoleResponse updateRole(Long id, RoleRequest request) {
+    public RoleResponse updateRole(String id, RoleRequest request) {
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Role not found with id: " + id));
 
@@ -59,7 +59,7 @@ public class RoleService {
     }
 
     @Transactional
-    public void deleteRole(Long id) {
+    public void deleteRole(String id) {
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Role not found with id: " + id));
 

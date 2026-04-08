@@ -19,7 +19,7 @@ import java.util.Optional;
 public class JpaAuditingConfig {
 
     @Bean
-    public AuditorAware<Long> auditorAware() {
+    public AuditorAware<String> auditorAware() {
         return () -> {
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
             if (authentication == null || !authentication.isAuthenticated()) {
@@ -29,11 +29,7 @@ public class JpaAuditingConfig {
             // The JWT subject is the user ID set during token generation.
             Object principal = authentication.getPrincipal();
             if (principal instanceof Jwt jwt) {
-                try {
-                    return Optional.of(Long.valueOf(jwt.getSubject()));
-                } catch (NumberFormatException e) {
-                    return Optional.empty();
-                }
+                return Optional.ofNullable(jwt.getSubject());
             }
 
             return Optional.empty();

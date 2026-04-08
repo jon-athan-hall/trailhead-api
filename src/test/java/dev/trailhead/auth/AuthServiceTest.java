@@ -60,7 +60,7 @@ class AuthServiceTest {
     @BeforeEach
     void setUp() {
         userRole = new Role("ROLE_USER");
-        userRole.setId(1L);
+        userRole.setId("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     }
 
     // ── register ───────────────────────────────────────────────────────
@@ -74,7 +74,7 @@ class AuthServiceTest {
         when(roleRepository.findByName("ROLE_USER")).thenReturn(Optional.of(userRole));
         when(userRepository.save(any(User.class))).thenAnswer(inv -> {
             User u = inv.getArgument(0);
-            u.setId(42L);
+            u.setId("11111111-1111-1111-1111-111111111111");
             return u;
         });
         when(jwtTokenService.generateAccessToken(any(User.class))).thenReturn("access-token");
@@ -126,7 +126,7 @@ class AuthServiceTest {
         var request = new LoginRequest("test@example.com", "password123");
 
         User user = new User();
-        user.setId(1L);
+        user.setId("22222222-2222-2222-2222-222222222222");
         user.setEmail("test@example.com");
         when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
         when(jwtTokenService.generateAccessToken(user)).thenReturn("access-token");
@@ -159,7 +159,7 @@ class AuthServiceTest {
     @Test
     void refresh_shouldRotateAndReturnNewTokens() {
         User user = new User();
-        user.setId(1L);
+        user.setId("22222222-2222-2222-2222-222222222222");
         user.setEmail("test@example.com");
 
         RefreshToken rotated = new RefreshToken();

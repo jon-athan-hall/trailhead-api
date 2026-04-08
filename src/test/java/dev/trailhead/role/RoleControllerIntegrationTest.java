@@ -107,7 +107,7 @@ class RoleControllerIntegrationTest {
 
     @Test
     void getRoleById_notFound_shouldReturn404() throws Exception {
-        mockMvc.perform(get("/api/roles/{id}", 9999L).with(asAdmin()))
+        mockMvc.perform(get("/api/roles/{id}", "00000000-0000-0000-0000-000000000000").with(asAdmin()))
                 .andExpect(status().isNotFound());
     }
 
@@ -123,7 +123,7 @@ class RoleControllerIntegrationTest {
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("ROLE_MODERATOR"))
-                .andExpect(jsonPath("$.id").isNumber());
+                .andExpect(jsonPath("$.id").isString());
     }
 
     @Test
@@ -212,7 +212,7 @@ class RoleControllerIntegrationTest {
 
     @Test
     void deleteRole_notFound_shouldReturn404() throws Exception {
-        mockMvc.perform(delete("/api/roles/{id}", 9999L).with(asAdmin()))
+        mockMvc.perform(delete("/api/roles/{id}", "00000000-0000-0000-0000-000000000000").with(asAdmin()))
                 .andExpect(status().isNotFound());
     }
 

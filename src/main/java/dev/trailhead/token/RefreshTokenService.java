@@ -75,7 +75,7 @@ public class RefreshTokenService {
 
     // Useful for logging out of all devices.
     @Transactional
-    public void revokeAllForUser(Long userId) {
+    public void revokeAllForUser(String userId) {
         refreshTokenRepository.revokeAllByUserId(userId);
     }
 

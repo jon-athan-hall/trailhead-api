@@ -8,7 +8,7 @@ import java.util.Set;
  * constructor, getter methods, and other implementations for equals, toString, etc.
  */
 public record UserResponse(
-        Long id,
+        String id,
         String name,
         String email,
         boolean verified,

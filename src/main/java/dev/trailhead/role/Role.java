@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
 @Entity
 @Table(name = "roles")
@@ -14,8 +15,9 @@ import lombok.Setter;
 public class Role extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @UuidGenerator
+    @Column(length = 36, updatable = false, nullable = false)
+    private String id;
 
     @Column(nullable = false, unique = true, length = 50)
     private String name;

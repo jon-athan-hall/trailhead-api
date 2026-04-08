@@ -23,6 +23,10 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class RoleServiceTest {
 
+    private static final String ROLE_ID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    private static final String OTHER_ROLE_ID = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    private static final String MISSING_ROLE_ID = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+
     @Mock
     private RoleRepository roleRepository;
 
@@ -41,8 +45,8 @@ class RoleServiceTest {
     @BeforeEach
     void setUp() {
         testRole = new Role("ROLE_USER");
-        testRole.setId(1L);
-        testRoleResponse = new RoleResponse(1L, "ROLE_USER");
+        testRole.setId(ROLE_ID);
+        testRoleResponse = new RoleResponse(ROLE_ID, "ROLE_USER");
     }
 
     @Test
@@ -58,17 +62,17 @@ class RoleServiceTest {
 
     @Test
     void getRoleById_whenExists_shouldReturn() {
-        when(roleRepository.findById(1L)).thenReturn(Optional.of(testRole));
+        when(roleRepository.findById(ROLE_ID)).thenReturn(Optional.of(testRole));
         when(roleMapper.toRoleResponse(testRole)).thenReturn(testRoleResponse);
 
-        assertEquals(testRoleResponse, roleService.getRoleById(1L));
+        assertEquals(testRoleResponse, roleService.getRoleById(ROLE_ID));
     }
 
     @Test
     void getRoleById_whenNotFound_shouldThrow() {
-        when(roleRepository.findById(99L)).thenReturn(Optional.empty());
+        when(roleRepository.findById(MISSING_ROLE_ID)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> roleService.getRoleById(99L));
+        assertThrows(EntityNotFoundException.class, () -> roleService.getRoleById(MISSING_ROLE_ID));
     }
 
     @Test
@@ -76,7 +80,7 @@ class RoleServiceTest {
         RoleRequest request = new RoleRequest("ROLE_NEW");
         when(roleRepository.existsByName("ROLE_NEW")).thenReturn(false);
         when(roleRepository.save(any(Role.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(roleMapper.toRoleResponse(any(Role.class))).thenReturn(new RoleResponse(2L, "ROLE_NEW"));
+        when(roleMapper.toRoleResponse(any(Role.class))).thenReturn(new RoleResponse(OTHER_ROLE_ID, "ROLE_NEW"));
 
         RoleResponse result = roleService.createRole(request);
 
@@ -95,67 +99,67 @@ class RoleServiceTest {
 
     @Test
     void updateRole_shouldUpdateName() {
-        when(roleRepository.findById(1L)).thenReturn(Optional.of(testRole));
+        when(roleRepository.findById(ROLE_ID)).thenReturn(Optional.of(testRole));
         when(roleRepository.existsByName("ROLE_RENAMED")).thenReturn(false);
         when(roleRepository.save(any(Role.class))).thenAnswer(inv -> inv.getArgument(0));
-        when(roleMapper.toRoleResponse(any(Role.class))).thenReturn(new RoleResponse(1L, "ROLE_RENAMED"));
+        when(roleMapper.toRoleResponse(any(Role.class))).thenReturn(new RoleResponse(ROLE_ID, "ROLE_RENAMED"));
 
-        roleService.updateRole(1L, new RoleRequest("ROLE_RENAMED"));
+        roleService.updateRole(ROLE_ID, new RoleRequest("ROLE_RENAMED"));
 
         assertEquals("ROLE_RENAMED", testRole.getName());
     }
 
     @Test
     void updateRole_sameName_shouldSkipDuplicateCheck() {
-        when(roleRepository.findById(1L)).thenReturn(Optional.of(testRole));
+        when(roleRepository.findById(ROLE_ID)).thenReturn(Optional.of(testRole));
         when(roleRepository.save(any(Role.class))).thenAnswer(inv -> inv.getArgument(0));
         when(roleMapper.toRoleResponse(any(Role.class))).thenReturn(testRoleResponse);
 
-        roleService.updateRole(1L, new RoleRequest("ROLE_USER"));
+        roleService.updateRole(ROLE_ID, new RoleRequest("ROLE_USER"));
 
         verify(roleRepository, never()).existsByName(any());
     }
 
     @Test
     void updateRole_collidingName_shouldThrow() {
-        when(roleRepository.findById(1L)).thenReturn(Optional.of(testRole));
+        when(roleRepository.findById(ROLE_ID)).thenReturn(Optional.of(testRole));
         when(roleRepository.existsByName("ROLE_ADMIN")).thenReturn(true);
 
         assertThrows(RoleNameAlreadyExistsException.class,
-                () -> roleService.updateRole(1L, new RoleRequest("ROLE_ADMIN")));
+                () -> roleService.updateRole(ROLE_ID, new RoleRequest("ROLE_ADMIN")));
     }
 
     @Test
     void updateRole_notFound_shouldThrow() {
-        when(roleRepository.findById(99L)).thenReturn(Optional.empty());
+        when(roleRepository.findById(MISSING_ROLE_ID)).thenReturn(Optional.empty());
 
         assertThrows(EntityNotFoundException.class,
-                () -> roleService.updateRole(99L, new RoleRequest("ROLE_X")));
+                () -> roleService.updateRole(MISSING_ROLE_ID, new RoleRequest("ROLE_X")));
     }
 
     @Test
     void deleteRole_whenUnused_shouldDelete() {
-        when(roleRepository.findById(1L)).thenReturn(Optional.of(testRole));
-        when(userRepository.existsByRolesId(1L)).thenReturn(false);
+        when(roleRepository.findById(ROLE_ID)).thenReturn(Optional.of(testRole));
+        when(userRepository.existsByRolesId(ROLE_ID)).thenReturn(false);
 
-        roleService.deleteRole(1L);
+        roleService.deleteRole(ROLE_ID);
 
         verify(roleRepository).delete(testRole);
     }
 
     @Test
     void deleteRole_whenInUse_shouldThrow() {
-        when(roleRepository.findById(1L)).thenReturn(Optional.of(testRole));
-        when(userRepository.existsByRolesId(1L)).thenReturn(true);
+        when(roleRepository.findById(ROLE_ID)).thenReturn(Optional.of(testRole));
+        when(userRepository.existsByRolesId(ROLE_ID)).thenReturn(true);
 
-        assertThrows(RoleInUseException.class, () -> roleService.deleteRole(1L));
+        assertThrows(RoleInUseException.class, () -> roleService.deleteRole(ROLE_ID));
         verify(roleRepository, never()).delete(any(Role.class));
     }
 
     @Test
     void deleteRole_notFound_shouldThrow() {
-        when(roleRepository.findById(99L)).thenReturn(Optional.empty());
+        when(roleRepository.findById(MISSING_ROLE_ID)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> roleService.deleteRole(99L));
+        assertThrows(EntityNotFoundException.class, () -> roleService.deleteRole(MISSING_ROLE_ID));
     }
 }

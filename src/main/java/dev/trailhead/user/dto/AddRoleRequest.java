@@ -1,9 +1,9 @@
 package dev.trailhead.user.dto;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 public record AddRoleRequest(
-        @NotNull(message = "Role ID is required")
-        Long roleId
+        @NotBlank(message = "Role ID is required")
+        String roleId
 ) {
 }

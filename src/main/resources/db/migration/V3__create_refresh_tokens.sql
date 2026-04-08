@@ -2,7 +2,7 @@
 CREATE TABLE refresh_tokens (
     id         BIGINT       NOT NULL AUTO_INCREMENT,
     token      VARCHAR(255) NOT NULL, -- UUID string
-    user_id    BIGINT       NOT NULL,
+    user_id    VARCHAR(36)     NOT NULL,
     expires_at TIMESTAMP    NOT NULL,
     revoked    BOOLEAN      NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP,

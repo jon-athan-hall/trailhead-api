@@ -51,7 +51,7 @@ class PasswordResetServiceTest {
                 tokenRepository, userRepository, mailSender, passwordEncoder, properties);
 
         testUser = new User();
-        testUser.setId(1L);
+        testUser.setId("11111111-1111-1111-1111-111111111111");
         testUser.setName("Test User");
         testUser.setEmail("test@example.com");
         testUser.setPassword("old-encoded");

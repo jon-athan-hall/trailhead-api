@@ -35,7 +35,7 @@ class RefreshTokenServiceTest {
         refreshTokenService = new RefreshTokenService(refreshTokenRepository, properties);
 
         testUser = new User();
-        testUser.setId(1L);
+        testUser.setId("11111111-1111-1111-1111-111111111111");
         testUser.setName("Test User");
         testUser.setEmail("test@example.com");
     }
@@ -127,9 +127,9 @@ class RefreshTokenServiceTest {
 
     @Test
     void revokeAllForUser_shouldCallRepository() {
-        refreshTokenService.revokeAllForUser(1L);
+        refreshTokenService.revokeAllForUser("11111111-1111-1111-1111-111111111111");
 
-        verify(refreshTokenRepository).revokeAllByUserId(1L);
+        verify(refreshTokenRepository).revokeAllByUserId("11111111-1111-1111-1111-111111111111");
     }
 
     private RefreshToken validToken() {

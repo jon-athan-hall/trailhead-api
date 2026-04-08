@@ -89,7 +89,7 @@ public class AuthController {
 
     @PostMapping("/resend-verification")
     public ResponseEntity<MessageResponse> resendVerification(@AuthenticationPrincipal Jwt jwt) {
-        Long userId = Long.valueOf(jwt.getSubject());
+        String userId = jwt.getSubject();
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
 

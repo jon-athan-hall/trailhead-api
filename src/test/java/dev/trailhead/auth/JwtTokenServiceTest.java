@@ -55,7 +55,7 @@ class JwtTokenServiceTest {
         assertNotNull(token);
         Jwt decoded = jwtDecoder.decode(token);
 
-        assertEquals("1", decoded.getSubject());
+        assertEquals("11111111-1111-1111-1111-111111111111", decoded.getSubject());
         assertEquals("test@example.com", decoded.getClaimAsString("email"));
         assertEquals("Test User", decoded.getClaimAsString("name"));
         assertEquals("test-issuer", decoded.getClaimAsString("iss"));
@@ -83,13 +83,13 @@ class JwtTokenServiceTest {
 
     private User createTestUser() {
         User user = new User();
-        user.setId(1L);
+        user.setId("11111111-1111-1111-1111-111111111111");
         user.setName("Test User");
         user.setEmail("test@example.com");
         user.setPassword("encoded-password");
 
         Role role = new Role("ROLE_USER");
-        role.setId(1L);
+        role.setId("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
         user.setRoles(Set.of(role));
 
         return user;

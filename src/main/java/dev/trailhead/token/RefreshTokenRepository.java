@@ -14,7 +14,7 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Long
     // Custom JPQL query to set revoked to true for all tokens belong to a user that haven't already been revoked.
     @Modifying
     @Query("UPDATE RefreshToken rt SET rt.revoked = true WHERE rt.user.id = :userId AND rt.revoked = false")
-    void revokeAllByUserId(@Param("userId") Long userId);
+    void revokeAllByUserId(@Param("userId") String userId);
 
     // Another custom JPSQL to clean up revoked and expired refresh tokens.
     @Modifying

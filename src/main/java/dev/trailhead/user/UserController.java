@@ -27,7 +27,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or #id.toString() == authentication.name")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> getUserById(@PathVariable String id) {
         return ResponseEntity.ok(userService.getUserById(id));
     }
 
@@ -40,14 +40,14 @@ public class UserController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or #id.toString() == authentication.name")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id,
+    public ResponseEntity<UserResponse> updateUser(@PathVariable String id,
                                                    @Valid @RequestBody UpdateUserRequest request) {
         return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
     @PutMapping("/{id}/password")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or #id.toString() == authentication.name")
-    public ResponseEntity<MessageResponse> changePassword(@PathVariable Long id,
+    public ResponseEntity<MessageResponse> changePassword(@PathVariable String id,
                                                           @Valid @RequestBody ChangePasswordRequest request,
                                                           Authentication authentication) {
         // Self-service password changes must verify the current password.
@@ -59,28 +59,28 @@ public class UserController {
 
     @PutMapping("/{id}/roles")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<UserResponse> addRole(@PathVariable Long id,
+    public ResponseEntity<UserResponse> addRole(@PathVariable String id,
                                                 @Valid @RequestBody AddRoleRequest request) {
         return ResponseEntity.ok(userService.addRole(id, request.roleId()));
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN') or #id.toString() == authentication.name")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable String id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/restore")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<UserResponse> restoreUser(@PathVariable Long id) {
+    public ResponseEntity<UserResponse> restoreUser(@PathVariable String id) {
         return ResponseEntity.ok(userService.restoreUser(id));
     }
 
     @DeleteMapping("/{id}/roles/{roleId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<UserResponse> removeRole(@PathVariable Long id,
-                                                   @PathVariable Long roleId) {
+    public ResponseEntity<UserResponse> removeRole(@PathVariable String id,
+                                                   @PathVariable String roleId) {
         return ResponseEntity.ok(userService.removeRole(id, roleId));
     }
 }

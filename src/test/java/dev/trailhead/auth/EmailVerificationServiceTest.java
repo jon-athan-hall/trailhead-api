@@ -49,7 +49,7 @@ class EmailVerificationServiceTest {
                 tokenRepository, userRepository, mailSender, properties);
 
         testUser = new User();
-        testUser.setId(1L);
+        testUser.setId("11111111-1111-1111-1111-111111111111");
         testUser.setName("Test User");
         testUser.setEmail("test@example.com");
         testUser.setVerified(false);
