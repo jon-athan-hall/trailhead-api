@@ -46,7 +46,7 @@ class PasswordResetServiceTest {
 
     @BeforeEach
     void setUp() {
-        PasswordResetProperties properties = new PasswordResetProperties(900000, "http://localhost:3000");
+        PasswordResetProperties properties = new PasswordResetProperties(900000, "http://localhost:5173");
         passwordResetService = new PasswordResetService(
                 tokenRepository, userRepository, mailSender, passwordEncoder, properties);
 
@@ -89,7 +89,7 @@ class PasswordResetServiceTest {
         SimpleMailMessage sent = captor.getValue();
         assertEquals("test@example.com", sent.getTo()[0]);
         assertEquals("Reset your password", sent.getSubject());
-        assertTrue(sent.getText().contains("http://localhost:3000/reset-password?token="));
+        assertTrue(sent.getText().contains("http://localhost:5173/reset-password?token="));
     }
 
     @Test

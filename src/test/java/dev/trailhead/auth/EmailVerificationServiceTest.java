@@ -43,7 +43,7 @@ class EmailVerificationServiceTest {
 
     @BeforeEach
     void setUp() {
-        VerificationProperties properties = new VerificationProperties(86400000, "http://localhost:3000");
+        VerificationProperties properties = new VerificationProperties(86400000, "http://localhost:5173");
         // @InjectMocks doesn't pick up record-only constructor args mixed with field-injected @Value, so set manually.
         emailVerificationService = new EmailVerificationService(
                 tokenRepository, userRepository, mailSender, properties);
@@ -87,7 +87,7 @@ class EmailVerificationServiceTest {
         assertNotNull(sent.getTo());
         assertEquals("test@example.com", sent.getTo()[0]);
         assertEquals("Verify your email", sent.getSubject());
-        assertTrue(sent.getText().contains("http://localhost:3000/verify?token="));
+        assertTrue(sent.getText().contains("http://localhost:5173/verify?token="));
     }
 
     @Test
