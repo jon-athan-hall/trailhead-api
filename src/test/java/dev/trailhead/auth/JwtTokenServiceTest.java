@@ -81,6 +81,26 @@ class JwtTokenServiceTest {
         assertEquals(900000, jwtTokenService.getExpirationMs());
     }
 
+    @Test
+    void generateAccessToken_shouldIncludeVerifiedClaim() {
+        User user = createTestUser();
+        user.setVerified(true);
+
+        Jwt decoded = jwtDecoder.decode(jwtTokenService.generateAccessToken(user));
+
+        assertEquals(Boolean.TRUE, decoded.getClaim("verified"));
+    }
+
+    @Test
+    void generateAccessToken_shouldIncludeVerifiedClaimWhenFalse() {
+        User user = createTestUser();
+        user.setVerified(false);
+
+        Jwt decoded = jwtDecoder.decode(jwtTokenService.generateAccessToken(user));
+
+        assertEquals(Boolean.FALSE, decoded.getClaim("verified"));
+    }
+
     private User createTestUser() {
         User user = new User();
         user.setId("11111111-1111-1111-1111-111111111111");

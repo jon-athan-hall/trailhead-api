@@ -43,6 +43,7 @@ public class JwtTokenService {
                 .claim("email", user.getEmail())
                 .claim("name", user.getName())
                 .claim("roles", roles)
+                .claim("verified", user.isVerified())
                 .build();
 
         return jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
