@@ -261,12 +261,15 @@ class AuthControllerIntegrationTest {
     }
 
     @Test
-    void forgotPassword_unknownEmail_shouldReturn404() throws Exception {
+    void forgotPassword_unknownEmail_shouldReturnOk() throws Exception {
+        // Must return the same uniform 200 as a known email — otherwise the endpoint
+        // leaks which addresses are registered (account enumeration).
         mockMvc.perform(post("/api/auth/forgot-password")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(
                                 new ForgotPasswordRequest("nobody@example.com"))))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Password reset email sent"));
     }
 
     @Test
@@ -350,6 +353,14 @@ class AuthControllerIntegrationTest {
                         .header("Authorization", "Bearer " + accessToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.message").value("Verification email sent"));
+    }
+
+    @Test
+    void resendVerification_withoutToken_shouldReturn401() throws Exception {
+        // resend-verification is authenticated-only. Guards against reintroducing an
+        // /api/auth/** permitAll wildcard, which would expose it unauthenticated.
+        mockMvc.perform(post("/api/auth/resend-verification"))
+                .andExpect(status().isUnauthorized());
     }
 
     @Test

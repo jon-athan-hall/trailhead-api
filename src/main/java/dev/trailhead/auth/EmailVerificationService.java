@@ -52,13 +52,12 @@ public class EmailVerificationService {
         String verificationLink = verificationProperties.frontendBaseUrl()
                 + "/verify?token=" + tokenValue;
 
-        // Log to console for local development when no mail host is configured.
+        // Local development fallback when no mail host is configured. Never log the token
+        // or the verification link — look the token up in the email_verification_tokens table
+        // (e.g. the H2 console) to complete the flow by hand.
         if (mailHost == null || mailHost.isBlank()) {
-            log.info("===== VERIFICATION EMAIL =====");
-            log.info("To: {}", user.getEmail());
-            log.info("Subject: Verify your email");
-            log.info("Link: {}", verificationLink);
-            log.info("==============================");
+            log.info("Verification email requested for {}; no mail host configured, token stored in DB.",
+                    user.getEmail());
             return;
         }
 

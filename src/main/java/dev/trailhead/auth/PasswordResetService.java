@@ -6,7 +6,6 @@ import dev.trailhead.token.PasswordResetToken;
 import dev.trailhead.token.PasswordResetTokenRepository;
 import dev.trailhead.user.User;
 import dev.trailhead.user.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,8 +46,13 @@ public class PasswordResetService {
 
     @Transactional
     public void requestReset(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException("No account found with email: " + email));
+        // Look up conditionally. A missing account must NOT change the response,
+        // otherwise the endpoint leaks which emails are registered (account enumeration).
+        // Silently no-op instead of throwing; the controller always returns a uniform 200.
+        User user = userRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            return;
+        }
 
         String tokenValue = UUID.randomUUID().toString();
 
@@ -60,13 +64,12 @@ public class PasswordResetService {
 
         String resetLink = properties.frontendBaseUrl() + "/reset-password?token=" + tokenValue;
 
-        // Log to console for local development when no mail host is configured.
+        // Local development fallback when no mail host is configured. Never log the token
+        // or the reset link — look the token up in the password_reset_tokens table
+        // (e.g. the H2 console) to complete the flow by hand.
         if (mailHost == null || mailHost.isBlank()) {
-            log.info("===== PASSWORD RESET EMAIL =====");
-            log.info("To: {}", user.getEmail());
-            log.info("Subject: Reset your password");
-            log.info("Link: {}", resetLink);
-            log.info("================================");
+            log.info("Password reset requested for {}; no mail host configured, token stored in DB.",
+                    user.getEmail());
             return;
         }
 

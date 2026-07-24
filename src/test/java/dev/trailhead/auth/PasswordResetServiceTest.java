@@ -6,7 +6,6 @@ import dev.trailhead.token.PasswordResetToken;
 import dev.trailhead.token.PasswordResetTokenRepository;
 import dev.trailhead.user.User;
 import dev.trailhead.user.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -93,12 +92,13 @@ class PasswordResetServiceTest {
     }
 
     @Test
-    void requestReset_userNotFound_shouldThrow() {
+    void requestReset_userNotFound_shouldNoOp() {
         when(userRepository.findByEmail("missing@example.com")).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class,
-                () -> passwordResetService.requestReset("missing@example.com"));
+        // Unknown email must be a silent no-op (uniform response, no enumeration).
+        assertDoesNotThrow(() -> passwordResetService.requestReset("missing@example.com"));
         verify(tokenRepository, never()).save(any());
+        verifyNoInteractions(mailSender);
     }
 
     @Test

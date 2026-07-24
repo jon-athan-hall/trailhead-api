@@ -53,6 +53,15 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         limitsByPath.put("POST:/api/auth/forgot-password", threePerHour);
         limitsByPath.put("POST:/api/auth/resend-verification", threePerHour);
         limitsByPath.put("POST:/api/auth/reset-password", threePerHour);
+
+        // Email verification link clicks — allow a few retries per hour.
+        limitsByPath.put("POST:/api/auth/verify", () -> bucket(10, Duration.ofHours(1)));
+
+        // Token-bearing session endpoints. Legitimate clients call these often (access-token
+        // churn, multiple tabs), so cap abuse without throttling normal use.
+        Supplier<Bucket> sixtyPerMinute = () -> bucket(60, Duration.ofMinutes(1));
+        limitsByPath.put("POST:/api/auth/refresh", sixtyPerMinute);
+        limitsByPath.put("POST:/api/auth/logout", sixtyPerMinute);
     }
 
     @Override
